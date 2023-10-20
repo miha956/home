@@ -1,0 +1,252 @@
+import UIKit
+import Foundation
+
+//MARK: - Task 1
+
+//part 1
+
+enum colors {
+    case red
+    case white
+    case black
+    case gray
+    case blue
+    case brown
+    case darkGray
+    case green
+}
+
+enum accessories: String {
+    case carMat
+    case winterTires
+    case firstAidKit
+    case fireExtinguisher
+    case alloyWheels
+}
+
+
+protocol Car {
+    var model: String { get }
+    var color: colors { get }
+    var buildDate: String { get }
+    var price: Double { get set }
+    var accessories: [accessories] { get set }
+    var isServiced: Bool { get set }
+  
+}
+
+//part 2
+
+protocol Dealership {
+    
+    var name: String { get }
+    var showroomCapacity: Int { get }
+    var stockCars: [Car] { get set }
+    var showroomCars: [Car] { get set}
+    var cars: [Car] { get }
+    
+    func offerAccesories(accessories: [String])
+    func presaleService(car: Car)
+    func addToShowroom(car: Car)
+    func sellCar(car: Car)
+    func orderCar()
+}
+
+extension Dealership {
+    
+    func offerAccesories(accessories: [String]) {
+        for accessory in accessories {
+            print("We offer you to buy \(accessory)")
+        }
+    }
+    func presaleService( car: inout Car) {
+        if car.isServiced == false {
+            car.isServiced = true
+            print(car)
+            print("Car was send to servise")
+        } else {
+            print("car elready presaleServiced")
+        }
+    }
+    
+    mutating func addToShowroom(car: Car) {
+        // надо тогда проверять склад, а есть ли у нас такая машина, но опять же, что бы понять какая это конкретно машина, нужен уникальный идентификатор
+        print(car)
+        print("we drive the car from the warehouse parking lot to the car dealership, while performing pre-sale preparation")
+        presaleService(car: car)
+        // нужно перегнать машину со склада, то есть удалить из stockCars и добавить в showroomCars
+        // задание не проработано! Удалить можно по уникальному значениею обьекта, по крайней мере другие способы мне неизвестны. В данном случае так как машина одна, удалю просто первый элемент/ но тут вопрос, у нам могуд быть полностью одинаковые машины! В реальной жизни уникальное значение это вин номер, у нас в условии такого нет!
+        // К сожалению что бы нормально реализовать все это задание и нормально его сделать надо много чего дополнить!
+        stockCars.removeFirst()
+        showroomCars.append(car)
+        
+    }
+    mutating func sellCar(car: Car) {
+        print(car)
+        presaleService(car: car)
+        
+        if car.accessories.isEmpty  {
+            offerAccesories(accessories: ["коврики","зимняя резина"])
+        }
+        showroomCars.removeAll(where: {$0.model == car.model})
+        
+        // Метод продаёт машину из автосалона и проверяет, выполнена ли предпродажная подготовка. Если у машины отсутсвует дополнительное оборудование, нужно предложить клиенту его купить (представим, что клиент всегда соглашается и покупает
+    }
+}
+
+// part 3
+
+struct NewCar: Car {
+
+    var model: String
+    var color: colors
+    var buildDate: String
+    var price: Double
+    var accessories: [accessories] = []
+    var isServiced: Bool
+    
+    
+
+}
+
+class Factory {
+    let name: String
+    var cars: [NewCar]
+    
+    init(name: String, cars: [NewCar]) {
+        self.name = name
+        self.cars = cars
+    }
+}
+
+let someFactory = Factory(name: "Zavod", cars: [
+    NewCar(model: "g454", color: .black, buildDate: "2023", price: 45000, isServiced: true),
+    NewCar(model: "m5", color: .brown, buildDate: "2023", price: 41500, isServiced: true),
+    NewCar(model: "gen56", color: .gray, buildDate: "2023", price: 30000, isServiced: true)
+                                                ])
+
+
+var bmw = NewCar(model: "f34", color: .black, buildDate: "2023", price: 35_540, isServiced: false)
+var bmw2 = NewCar(model: "f35", color: .black, buildDate: "2023", price: 35_540, isServiced: true)
+
+var honda = NewCar(model: "civic", color: .white, buildDate: "2022", price: 28_300, accessories: [.winterTires], isServiced: true)
+var honda2 = NewCar(model: "civic2", color: .blue, buildDate: "2022", price: 28_300, accessories: [.winterTires], isServiced: true)
+
+var audi = NewCar(model: "a4", color: .brown, buildDate: "2023", price: 41_000, isServiced: false)
+var audi2 = NewCar(model: "a5", color: .brown, buildDate: "2023", price: 41_000, isServiced: false)
+
+var lexus = NewCar(model: "xs4", color: .darkGray, buildDate: "2021", price: 27_800, accessories: [.winterTires,.carMat,.alloyWheels], isServiced: true)
+var lexus2 = NewCar(model: "xs5", color: .darkGray, buildDate: "2021", price: 27_800, accessories: [.winterTires,.carMat,.alloyWheels], isServiced: true)
+
+var volvo = NewCar(model: "s400", color: .green, buildDate: "2023", price: 55_000, isServiced: true)
+var volvo2 = NewCar(model: "s401", color: .green, buildDate: "2023", price: 55_000, isServiced: true)
+
+class DealershipClass: Dealership {
+
+    var name: String
+    var showroomCapacity: Int
+    var stockCars: [Car]
+    var showroomCars: [Car]
+    var cars: [Car] {
+        return stockCars + showroomCars
+    }
+
+    func presaleService(car: Car) {}
+    func addToShowroom(car: Car) {}
+    func sellCar(car: Car) {}
+    func orderCar() {
+        stockCars.append(someFactory.cars[0])
+        someFactory.cars.remove(at: 0)
+    }
+    
+    init(name: String, showroomCapacity: Int, stockCars: [Car], showroomCars: [Car]) {
+        self.name = name
+        self.showroomCapacity = showroomCapacity
+        self.stockCars = stockCars
+        self.showroomCars = showroomCars
+    }
+}
+
+final class BmwDealership: DealershipClass {}
+final class HondaDealership: DealershipClass {}
+final class AudiDealership: DealershipClass {}
+final class LexusDealership: DealershipClass {}
+final class VolvoDealership: DealershipClass {}
+
+let bmwDealership = BmwDealership(name: "bmw", showroomCapacity: 10, stockCars: [bmw], showroomCars: [bmw2])
+let hondaDealership = HondaDealership(name: "honda", showroomCapacity: 15, stockCars: [honda], showroomCars: [honda2])
+let audiDealership = AudiDealership(name: "audi", showroomCapacity: 12, stockCars: [audi], showroomCars: [audi2])
+let lexusDealership = LexusDealership(name: "lexus", showroomCapacity: 10, stockCars: [lexus], showroomCars: [lexus2])
+let volvoDealership = VolvoDealership(name: "volvo", showroomCapacity: 20, stockCars: [volvo], showroomCars: [volvo2])
+
+
+let dealershipArray = [bmwDealership,hondaDealership,audiDealership,lexusDealership,volvoDealership]
+
+
+// Пройдитесь по нему циклом и выведите в консоль слоган для каждого дилеского центра — слоган можно загуглить. Обратите внимание: используйте конструкцию приведения типа данных для решения этой задачи.
+
+for dealership in dealershipArray {
+    switch dealership.self {
+    case is BmwDealership: print("С удовольствием за рулем")
+    case is HondaDealership: print("Сначала человек, потом машина")
+    case is AudiDealership: print("Продвижение через технологии")
+    case is LexusDealership: print("Неудержимое стремление к совершенству")
+    case is VolvoDealership: print("Вольво для жизни!")
+    default:
+        print("error")
+    }
+}
+
+
+// part 4
+
+extension Car {
+    mutating func addEmergencyPack() {
+        accessories.append(.fireExtinguisher)
+        accessories.append(.firstAidKit)
+    }
+    mutating func makeSpecialOffer() {
+        if buildDate < "2023" {
+            price = price - (price / 100 * 15)
+            print("we offer you sale, new price \(price)")
+            addEmergencyPack()
+        }
+    }
+}
+
+honda.addEmergencyPack()
+honda.accessories.forEach({print($0.rawValue)})
+honda.makeSpecialOffer()
+hondaDealership.cars
+
+
+//Проверьте все машины в дилерском центре, возможно, они нуждаются в специальном предложении. Нужно помнить, что массивы — это структуры, и они изменяются, только если изменится состав этих элементов (См. copy-on-write).
+
+// все машины в дилерском центре - это машины, находящиеся в автосалоне showroomCars ??
+// или это - cars (массив, чтение) — хранит список всех машин в наличии ??
+
+extension DealershipClass {
+    func checkShowroomCars() {
+        for i in showroomCars.indices {
+            if cars[i].buildDate < "2023" {
+                showroomCars[i].makeSpecialOffer()
+            }
+        }
+    }
+}
+
+hondaDealership.checkShowroomCars()
+
+//Если есть автомобили на складе, которые попадают под условия, нужно также сделать им специальное предложение перегнать их в автосалон.
+extension DealershipClass {
+    func checkStockCars() {
+        for i in stockCars.indices {
+            if cars[i].buildDate < "2023" {
+                stockCars[i].makeSpecialOffer()
+            }
+        }
+    }
+}
+
+lexusDealership.checkStockCars()
+
